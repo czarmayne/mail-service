@@ -1,0 +1,129 @@
+plugins {
+    id "com.github.spotbugs" version "5.0.5"
+    id "com.palantir.docker" version "0.32.0"
+    id 'groovy'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'jacoco'
+    id 'org.springframework.boot' version '2.6.4'
+    id "org.owasp.dependencycheck" version "6.5.0.1"
+}
+
+group = 'com.siteminder'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2021.0.1")
+}
+
+ext['tomcat.version'] = '9.0.58'
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+//    implementation 'org.springframework.boot:spring-boot-starter-mail' FIXME: RESTFul API for Mail Providers; not hosted internally
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+//    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' //FIXME: Might not be allowed to use, but would be easier for api integration
+    implementation 'org.springframework.boot:spring-boot-starter-aop:2.6.4'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.4'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+
+    // performance metric
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.8.3'
+    implementation 'io.micrometer:micrometer-core:1.8.3'
+
+    // for log formatting
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.0.1'
+    implementation 'org.codehaus.janino:janino:3.1.6'
+
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
+    testImplementation 'org.spockframework:spock-spring:2.0-groovy-3.0'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+configurations.all {
+    exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
+    exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+    exclude group: 'io.netty', module: 'netty'
+}
+
+
+jar {
+    enabled = false
+    archiveClassifier = ''
+}
+
+jacoco {
+    toolVersion = '0.8.7'
+    reportsDirectory = file("$buildDir/customJacocoReportDir")
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        html.enabled true
+        xml.enabled true
+    }
+}
+
+spotbugsMain {
+    reports {
+        html {
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
+
+spotbugs {
+    ignoreFailures = false
+    showStackTraces = true
+    showProgress = true
+    effort = 'max'
+    reportLevel = 'high'
+    visitors = [ 'FindSqlInjection', 'SwitchFallthrough' ]
+    omitVisitors = [ 'FindNonShortCircuit' ]
+    reportsDir = file("$buildDir/spotbugs")
+    maxHeapSize = '1g'
+    extraArgs = [ '-nested:false' ]
+    jvmArgs = [ '-Duser.language=ja' ]
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+docker {
+    dependsOn build
+    name "${targetDockerRegistry}/${project.name}:${version}"
+    files jar.archiveFile
+    jar.archiveFileName = "${jar.archiveBaseName.get()}-${jar.archiveVersion.get()}.${jar.archiveExtension.get()}"
+    buildArgs(['JAR_FILE': jar.archiveFileName.get()])
+    dockerfile file("./Dockerfile")
+}
