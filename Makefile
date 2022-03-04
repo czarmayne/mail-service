@@ -6,9 +6,15 @@ health_port := 81
 # e.g. --args='spring.profiles.active=local'
 profile :=
 
+default: up test
+
 b:
 	@echo [START] build app
 	gradle clean build
+
+r: b
+	@echo [START] run app
+	gradle bootRun
 
 dApp: b
 	@echo [START] remote debug app
@@ -40,3 +46,9 @@ up:
 	curl localhost:${health_port}/actuator/health
 	@echo [START] check controller
 	curl localhost:${app_port}/hello
+
+test:
+	@echo [START] send email
+	curl --location --request POST 'localhost:${app_port}/mail/default' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{ "recipients" : ["czar@gmail.com","czar@outlook.com"],"cc" : [""],"bcc": [""],"from":"czar@gmail.com", "message":"test","subject":"subj"}}'
