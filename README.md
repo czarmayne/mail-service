@@ -9,26 +9,28 @@ Lucky you! We are now supporting 2 providers (_and maybe more in the future. So,
 - Mailgun
 - SendGrid
 
-## TODO
-
-### RESTful API
+### RESTful API 
+_see WIKI.md for more info_
 - User Validation
-- No auth, no additional 3rd Party Library
+- No auth, no additional 3rd Party Library except for the *Spring Framework*
 - Mocked API for 2 providers
 - Error Handling
 - Fail-over (_no assessment yet which is better for the 2 provides in terms of cost_)
-### Add-Ons
-- A README.md on the overview and general usage
-- Trace Header
 
 ###  OPTIONAL
-- Swagger Documentation
-- An ARCHITECTURE.md with technical decisions
-- API Metrics | ELK Stack
-- API Resiliency | Horizontal Scaling
-- Security | JWT / Oauth2
-- Logging | Logback
-- Deploying your solution somewhere (URL) for us to play with it. | Heroku or Redhat Sandbox
+- [X] Swagger Documentation
+//see WIKI.md for API Reference
+- [X] An ARCHITECTURE.md with technical decisions
+//see ARCHITECTURE.md
+- [X] API Metrics
+//added micrometer for easier pulling of metrics in case deployed in env and can be easily integrate with prometheus
+- [X] API Resiliency
+//added retry mechanism and graceful shutdown
+- [X] Logging
+//added traceability; was not able to implement traceheader or interceptors
+- [ ] Deploying your solution somewhere (URL) for us to play with it.
+//was not able to deploy in Heroku or RedHat Sandbox, but added instructions in the demo section below
+- [ ] Security | JWT / Oauth2
 
 ## Tech Stack
 
@@ -69,13 +71,21 @@ Install dependencies
 Start the server
 
 ```bash
-  make run
+  make r
 ```
-Test using the postman collection
+Test the API 
 ```bash
-  make runPostman
+  make test
 ```
 
 ## Demo
 
-Insert gif or link to demo
+To play with the app:
+```
+ //reference https://hub.docker.com/repository/docker/czaring/mail-service
+    docker pull czaring/mail-service:0.0.2-SNAPSHOT
+ 
+ // you can use the Makefile or use the commands that corresponds to the below ones:
+    make dRun IMG=czaring/mail-service:0.0.2-SNAPSHOT
+    make test
+```
