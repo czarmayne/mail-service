@@ -30,9 +30,12 @@ ext['tomcat.version'] = '9.0.58'
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
+//    implementation 'org.springframework.boot:spring-boot-starter-mail' FIXME: RESTFul API for Mail Providers; not hosted internally
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+//    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' //FIXME: Might not be allowed to use, but would be easier for api integration
+    implementation 'org.springframework.boot:spring-boot-starter-aop:2.6.4'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.4'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 
     // performance metric
     implementation 'io.micrometer:micrometer-registry-prometheus:1.8.3'
@@ -45,6 +48,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
