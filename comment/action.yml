@@ -2,11 +2,11 @@ name: "Reusable action"
 description: "Reuse..."
 
 inputs:
-  github-token:
+  github_token:
     description: 'secret github token'
     default: 'git_token'
     required: true
-  shortcut-token:
+  shortcut_token:
     description: 'secret shortcut token'
     default: 'shortcut_token'
     required: true
@@ -27,4 +27,4 @@ runs:
 
     # Pulls github PR data and feeds it to JS file, which says hello
     - name: Shortcut Comments
-      run: node .github/clubhouse_commenter/clubhouseComment.js "${{inputs.shortcut_token}}" "${{inputs.github_token}}" "${{github.event.pull_request.number}}" "PR_REVIEW" "${{github.actor}}"
+      run: node .github/shortcut/hello.js "${{inputs.shortcut_token}}" "${{inputs.github_token}}" "${{github.event.pull_request.number}}" "PR_REVIEW" "${{github.actor}}"
