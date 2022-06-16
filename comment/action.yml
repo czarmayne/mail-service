@@ -27,4 +27,5 @@ runs:
 
     # Pulls github PR data and feeds it to JS file, which says hello
     - name: Shortcut Comments
+      shell: bash
       run: node .github/shortcut/hello.js "${{inputs.shortcut_token}}" "${{inputs.github_token}}" "${{github.event.pull_request.number}}" "PR_REVIEW" "${{github.actor}}"
