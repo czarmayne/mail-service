@@ -3,11 +3,11 @@ description: "Reuse..."
 
 inputs:
   github_token:
-    description: 'secret github token'
+    description: "secret github token"
     default: 'git_token'
     required: true
   shortcut_token:
-    description: 'secret shortcut token'
+    description: "secret shortcut token"
     default: 'shortcut_token'
     required: true
 
