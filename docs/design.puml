@@ -1,0 +1,44 @@
+@startuml
+autonumber
+
+title "Mail Service"
+
+actor "User" as u
+boundary "Mail Service" as mail
+
+u -> mail : send an email 
+activate mail #Darkorange
+
+note right    
+    * REQUIRED: Input Validation 
+    * TODO: Auth
+
+    * FOR REVIEW Is there a need to track the state of the mails?
+    If yes, we might need to persist it in the DB?
+end note
+
+alt Mailgun 
+    create boundary Mindgun as mg
+    mail -> mg : send to primary mail provider
+    activate mg #Darkorange
+        mail <-- mg : successfully sent
+else Error Encountered in Mailgun
+        mail X<-- mg : connection timeout
+        create control "Retry N times" as retry
+        loop 1..N
+            mail -> retry : start retrying
+            mail X<-- mg : connection timeout
+        end
+   deactivate mg
+else Error Encountered after Mailgun Retry
+    create boundary SendGrid as sg 
+        mail -> sg : send to secondary mail provider
+        mail <-- sg : successfully sent
+    note right
+        * FOR REVIEW: Failure persist...
+        - might need to push as an event for reprocessing
+    end note
+end
+u <-- mail : success
+deactivate mail
+@enduml
